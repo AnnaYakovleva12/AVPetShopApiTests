@@ -12,8 +12,8 @@ class TestPet:
 
         with allure.step("Подготовка тела запроса"):
             payload = {
-                "id": 10001,
-                "name": "Barsik",
+                "id": 10002,
+                "name": "Bars",
                 "category": {
                     "id": 1,
                     "name": "Cats"
@@ -41,7 +41,22 @@ class TestPet:
 
         with allure.step("Проверка данных питомца в ответе"):
             body = response.json()
+            pet_id = body["id"]
 
-            assert body["id"] == 10001
-            assert body["name"] == "Barsik"
+            assert body["id"] == 10002
+            assert body["name"] == "Bars"
             assert body["status"] == "available"
+
+            with allure.step("Удаляем созданного питомца"):
+                delete_response = requests.delete(
+                    url=f"{BASE_URL}/pet/{pet_id}"
+                )
+
+                assert delete_response.status_code == 200
+
+            with allure.step("Проверяем что питомец удалён"):
+                get_response = requests.get(
+                    url=f"{BASE_URL}/pet/{pet_id}"
+                )
+
+                assert get_response.status_code == 404
